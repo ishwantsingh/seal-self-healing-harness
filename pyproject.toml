@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "self-heal"
+version = "0.1.0"
+description = "A task-adaptive analyst harness"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "certifi>=2025.1",
+    "langsmith>=0.4",
+    "openai>=2",
+    "pymongo[srv]>=4.10",
+    "PyYAML>=6",
+]
+
+[project.optional-dependencies]
+dev = ["mongomock>=4.1", "pytest>=8"]
+
+[project.scripts]
+self-heal = "self_heal.cli:main"
+
+[tool.setuptools]
+packages = ["self_heal", "harness", "evals", "evals.analyst", "evals.analyst.data", "evals.logistics"]
+
+[tool.setuptools.package-dir]
+self_heal = "src/self_heal"
+harness = "harness"
+
+[tool.setuptools.package-data]
+"evals.analyst" = ["scenarios.yaml", "data/*.json"]
+
+[tool.setuptools.data-files]
+"share/self-heal/ui" = ["ui/index.html", "ui/app.js", "ui/styles.css", "ui/README.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

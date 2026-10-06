@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Self-Heal inventory analyst and run evidence">
+  <title>Self-Heal · Inventory analyst</title><link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" aria-label="Workspace navigation">
+    <a class="brand" href="#ask" aria-label="Self-Heal home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Self-Heal</a>
+    <nav aria-label="Main"><a href="#ask" class="nav-link" data-nav="ask"><span aria-hidden="true">◯</span> Ask</a><a href="#evolve" class="nav-link" data-nav="evolve"><span aria-hidden="true">↗</span> Evolve</a><a href="#harness" class="nav-link" data-nav="harness"><span aria-hidden="true">⌘</span> Harness</a><a href="#runs" class="nav-link" data-nav="runs"><span aria-hidden="true">▤</span> Runs</a><a href="#evaluations" class="nav-link" data-nav="evaluations"><span aria-hidden="true">▥</span> Evaluations</a><a href="#versions" class="nav-link" data-nav="versions"><span aria-hidden="true">♧</span> Versions</a></nav>
+    <div class="active-version"><span class="status-dot"></span><span>Active · <strong data-active-version>Loading</strong></span></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span class="workspace-title" data-workspace-title>Inventory analyst</span><span class="connection"><span class="status-dot"></span><span data-atlas-status>Checking Atlas</span></span></header>
+    <main>
+      <section class="ask" id="ask" aria-label="Ask the analyst">
+        <div class="ask-heading"><div class="eyebrow">Ask the analyst</div><h1 data-ask-title>Ask your inventory</h1></div>
+        <div class="source-picker"><label for="data-source">Data source</label><select id="data-source" aria-label="Data source"></select><button type="button" data-load-logistics>Load logistics demo</button><span class="muted" data-source-note></span></div>
+        <form id="analysis-form" autocomplete="off">
+          <label class="sr-only" for="question">Question for the analyst</label>
+          <div class="question-bar"><span class="search-icon" aria-hidden="true">⌕</span><input id="question" name="question" type="text" required maxlength="2000" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions" placeholder="Ask for available, on-hand, or reserved units by SKU, warehouse, or category"><button type="submit" data-run-button disabled>Run analysis <span aria-hidden="true">→</span></button></div>
+          <div class="suggestions" id="suggestions" role="listbox" aria-label="Suggested questions" hidden></div>
+        </form>
+      </section>
+      <section class="run-view" id="run-details" aria-labelledby="run-heading" hidden>
+        <div class="breadcrumb"><a href="#runs">Runs</a><span>/</span><span data-run-short-id></span></div>
+        <div class="run-title-line"><h1 id="run-heading" data-run-question></h1><span class="outcome-badge" data-outcome></span></div>
+        <p class="answer" data-run-message></p>
+        <div class="run-facts"><span>Run ID <strong data-run-id></strong><button type="button" class="text-button" data-copy-run-id>Copy</button></span><span>Version <strong data-version></strong></span><span>Duration <strong data-duration></strong></span><span data-resource-summary></span></div>
+        <div class="run-columns">
+          <div class="run-primary">
+            <div class="evidence-tabs" role="tablist" aria-label="Run evidence"><button type="button" role="tab" data-tab="atlas">▤ &nbsp;Atlas data</button><button type="button" role="tab" data-tab="tools">⚒ &nbsp;Tool calls</button><button type="button" role="tab" data-tab="trace">♧ &nbsp;Trace</button></div>
+            <div class="evidence-grid">
+              <section class="evidence-section" data-panel="atlas" aria-labelledby="atlas-heading"><div class="section-heading"><h2 id="atlas-heading">Atlas data read</h2><span data-atlas-summary></span></div><div data-atlas-content></div></section>
+              <section class="evidence-section" data-panel="tools" aria-labelledby="tools-heading" hidden><div class="section-heading"><h2 id="tools-heading">Tool calls</h2><span data-tools-summary></span></div><div data-tool-content></div></section>
+              <section class="evidence-section" data-panel="trace" aria-labelledby="trace-heading" hidden><div class="section-heading"><h2 id="trace-heading">LangSmith trace</h2><a data-trace-link hidden target="_blank" rel="noopener noreferrer">Open full trace ↗</a></div><div data-trace-content></div></section>
+              <section class="evidence-section" id="candidate-check" aria-labelledby="evaluation-heading" hidden><div class="section-heading"><h2 id="evaluation-heading">Capability gap &amp; candidate check</h2></div><div data-gap-content></div></section>
+            </div>
+          </div>
+          <aside class="run-secondary"><section class="evidence-section" aria-labelledby="timeline-heading"><div class="section-heading"><h2 id="timeline-heading">Execution timeline</h2><span data-timeline-total></span></div><div data-timeline-content></div></section><section class="evidence-section" aria-labelledby="trace-preview-heading"><div class="section-heading"><h2 id="trace-preview-heading">LangSmith trace</h2><a data-trace-side-link hidden target="_blank" rel="noopener noreferrer">Open full trace ↗</a></div><div data-trace-preview></div></section></aside>
+        </div>
+      </section>
+      <section class="recent" id="runs" aria-labelledby="recent-heading"><div class="section-heading"><h2 id="recent-heading">Recent runs</h2><span>Newest first</span></div><div class="run-list-head"><span>Question</span><span>Outcome</span><span>Version</span><span>Time</span></div><div data-history-list aria-live="polite"></div></section>
+      <section class="listing-page" id="evaluations" aria-labelledby="evaluations-heading" hidden><div class="eyebrow">Protected checks</div><h1 id="evaluations-heading">Evaluations</h1><p class="muted">Recorded cases and results from the trusted evaluator. Selection trials and final assessments are shown separately when recorded.</p><div data-evaluations-list></div></section>
+      <section class="listing-page" id="versions" aria-labelledby="versions-heading" hidden><div class="eyebrow">Harness history</div><h1 id="versions-heading">Versions</h1><p class="muted" data-version-description></p><div data-versions-list></div></section>
+      <section class="evolve-page" id="evolve" aria-labelledby="evolve-heading" hidden>
+        <div class="eyebrow">Automatic evolution</div><div class="evolve-heading"><div><h1 id="evolve-heading">Evolve the harness</h1><p class="muted" data-evolve-subtitle>Choose a capability-gap run to inspect its evolution.</p></div><span class="evolve-status" data-evolve-status>Waiting</span></div>
+        <ol class="stage-strip" data-evolve-stages aria-label="Evolution progress"><li data-stage="incident_classified">Incident</li><li data-stage="diagnosing">Diagnose</li><li data-stage="proposal_received">Propose</li><li data-stage="candidate_ready">Candidate</li><li data-stage="evaluating">Evaluate</li><li data-stage="activated">Activate</li></ol>
+        <div class="evolve-layout"><section class="workflow-region" aria-labelledby="evolve-workflow-heading"><div class="section-heading"><h2 id="evolve-workflow-heading">Harness workflow</h2><span data-evolve-workflow-version>—</span></div><div class="workflow-canvas" data-evolve-workflow aria-live="polite"></div><div class="workflow-equivalent" data-evolve-workflow-list></div></section><aside class="workflow-inspector" aria-labelledby="evolve-inspector-heading"><div class="section-heading"><h2 id="evolve-inspector-heading">Evidence</h2><span data-evolve-updated>—</span></div><div data-evolve-inspector><p class="empty-state">Select a workflow component to inspect it.</p></div></aside></div>
+        <section class="evaluation-region" aria-labelledby="evolve-evaluations-heading"><div class="section-heading"><div><h2 id="evolve-evaluations-heading">Evaluation comparison</h2><p class="muted">The frozen plan keeps the previous and candidate harness results comparable.</p></div><span data-evolve-evaluation-status>Pending</span></div><div class="comparison-chart" data-evolve-chart></div><div class="trial-table-wrap"><table><thead><tr><th>Case</th><th>Harness</th><th>Result</th><th>Resources</th><th>Trace</th></tr></thead><tbody data-evolve-trials></tbody></table></div></section>
+        <section class="event-region" aria-labelledby="evolve-events-heading"><div class="section-heading"><h2 id="evolve-events-heading">Recorded progress</h2><span>Stored events</span></div><div data-evolve-events></div></section>
+      </section>
+      <section class="harness-page" id="harness" aria-labelledby="harness-heading" hidden>
+        <div class="eyebrow">Persisted workflow history</div><div class="evolve-heading"><div><h1 id="harness-heading">Harness</h1><p class="muted">Open the active workflow or compare retained revisions.</p></div><label class="family-picker">Family <select data-harness-family aria-label="Harness task family"><option value="inventory-totals">Inventory</option><option value="logistics-shipment-threshold">Logistics</option></select></label></div>
+        <div class="harness-layout"><aside class="workflow-history" aria-label="Workflow revisions" data-workflow-history></aside><section class="workflow-region" aria-labelledby="harness-workflow-heading"><div class="section-heading"><h2 id="harness-workflow-heading">Saved workflow</h2><span data-harness-workflow-version>—</span></div><div class="workflow-canvas" data-harness-workflow></div><div class="workflow-equivalent" data-harness-workflow-list></div></section><aside class="workflow-inspector" aria-labelledby="harness-inspector-heading"><div class="section-heading"><h2 id="harness-inspector-heading">Component</h2></div><div data-harness-inspector><p class="empty-state">Select a component to inspect its registration and dependencies.</p></div></aside></div>
+      </section>
+    </main>
+  </div>
+</div>
+<div class="sr-only" role="status" aria-live="polite" data-announcement></div>
+<script src="./app.js"></script>
+</body>
+</html>
