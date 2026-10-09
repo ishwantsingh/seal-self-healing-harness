@@ -6,7 +6,18 @@ Self-Heal is a Python prototype for improving an agent's tools and context polic
 
 The core question: **did the agent gain a capability, or did it just learn to pass the example?**
 
-[Quick start](#quick-start) · [Architecture](#architecture) · [Evaluation process](#evaluation-process) · [Setup guide](SETUP.md) · [Review guide](CONTRIBUTING.md)
+[Demo](#narrated-demo) · [Quick start](#quick-start) · [Architecture](#architecture) · [Evaluation process](#evaluation-process) · [Setup guide](SETUP.md) · [Review guide](CONTRIBUTING.md)
+
+## Narrated demo
+
+[![Watch the narrated Self-Heal demo](docs/media/self-heal-demo.png)](docs/media/self-heal-demo.mp4)
+
+[Watch the video · 1 minute 54 seconds](docs/media/self-heal-demo.mp4)
+
+Follow the complete flow: capability failure → captured logs → proposed repair →
+28 paired evaluation trials → activation → automatic rerun answering **2 customers**.
+The demo uses live services on an intentionally limited, isolated baseline with
+synthetic data. Waits are accelerated; narration and optional English captions are included.
 
 ## Why this is interesting
 
@@ -16,7 +27,7 @@ The core question: **did the agent gain a capability, or did it just learn to pa
 - **Selection and final assessment are separate.** Repeated validation feedback is development evidence. Untouched final cases are reserved before evolution and consumed once.
 - **Every decision is inspectable.** Atlas links incidents, cases, diffs, trials, active versions, and rollback history; LangSmith supplies detailed redacted traces.
 
-**Status:** implemented research prototype with local tests for the supervisor, bounded data interfaces, selection, promotion, rollback, and final-assessment controls. The original project notes report a live candidate rejected after 28 selection trials. Successful live model-generated promotion and an untouched final result have not been established; those historical records are not included in this clean source copy. The logistics capability is a reviewed code change, not evidence of autonomous evolution.
+**Status:** implemented research prototype with local tests for the supervisor, bounded data interfaces, selection, promotion, rollback, and final-assessment controls. The original project notes report a live candidate rejected after 28 selection trials. A live recording on October 9, 2026 established a model-generated logistics repair in an isolated, intentionally limited baseline: 28 protected paired trials, accepted activation, and a successful automatic rerun. It uses synthetic data; an untouched final assessment has not been established. Those historical rejection records are not included in this clean source copy. The logistics capability is a reviewed code change, not evidence of autonomous evolution.
 
 ## Quick start
 
@@ -90,16 +101,16 @@ flowchart LR
     Active --> Supervisor
 ```
 
-| Component | Responsibility |
-| --- | --- |
-| `harness/` | Editable agent loop, tools, and context policy; the candidate's only permitted edit surface |
-| `src/self_heal/` | Trusted orchestration, model/data access, telemetry, evolution, selection, promotion, and CLI/UI server |
-| `evals/` | Protected deterministic generators, independent inventory/logistics oracles, and public fixtures |
-| `config/analyst.yaml` | Task contracts, fixed resource budgets, evaluation thresholds, and edit scope |
-| `runner_support/` + `Dockerfile` | Minimal container runtime with host-mediated model and data requests |
-| `prompts/` | Fixed scenario, diagnosis, and patch-generation instructions |
-| `ui/` | Dependency-free browser interface served by the local Python application |
-| `tests/` | Scripted and mocked checks plus opt-in real Docker integration |
+| Component                        | Responsibility                                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `harness/`                       | Editable agent loop, tools, and context policy; the candidate's only permitted edit surface             |
+| `src/self_heal/`                 | Trusted orchestration, model/data access, telemetry, evolution, selection, promotion, and CLI/UI server |
+| `evals/`                         | Protected deterministic generators, independent inventory/logistics oracles, and public fixtures        |
+| `config/analyst.yaml`            | Task contracts, fixed resource budgets, evaluation thresholds, and edit scope                           |
+| `runner_support/` + `Dockerfile` | Minimal container runtime with host-mediated model and data requests                                    |
+| `prompts/`                       | Fixed scenario, diagnosis, and patch-generation instructions                                            |
+| `ui/`                            | Dependency-free browser interface served by the local Python application                                |
+| `tests/`                         | Scripted and mocked checks plus opt-in real Docker integration                                          |
 
 Atlas stores immutable input data and compact improvement history. LangSmith stores redacted detailed traces; its trace ID links back to the Atlas run. Git pins the baseline and candidate source. The host owns credentials, the oracle, and authoritative resource counters.
 
@@ -130,12 +141,12 @@ The design draws on [RRSI: Regularized Recursive Self-Improvement of Agent Harne
 7. **Activate conditionally.** Promote only the exact tested commit, provided the active parent and environment still match. Fresh runs use the accepted version; retained versions support rollback.
 8. **Assess once on untouched cases.** Freeze the selected harness and consume reserved final cases. Record correctness, resources, and failures separately from selection.
 
-| Evaluation role | What it establishes | How to interpret it |
-| --- | --- | --- |
-| Original reproduction | The failure exists and the candidate resolves it | Disclosed development evidence; retained as regression |
-| Existing regressions | Previously working behavior still works | Necessary protection against narrow fixes |
-| Fresh validation | Transfer to variations within the declared task family | Selection evidence; repeated feedback can overfit |
-| Final assessment | Performance of the frozen selected version on untouched tasks | One-use assessment; report failures as well as successes |
+| Evaluation role       | What it establishes                                           | How to interpret it                                      |
+| --------------------- | ------------------------------------------------------------- | -------------------------------------------------------- |
+| Original reproduction | The failure exists and the candidate resolves it              | Disclosed development evidence; retained as regression   |
+| Existing regressions  | Previously working behavior still works                       | Necessary protection against narrow fixes                |
+| Fresh validation      | Transfer to variations within the declared task family        | Selection evidence; repeated feedback can overfit        |
+| Final assessment      | Performance of the frozen selected version on untouched tasks | One-use assessment; report failures as well as successes |
 
 Default configuration: **3 patch attempts**, **4 validation cases**, **2 live repetitions**, **2× maximum cost ratio**, and **required verified traces**. Runs are bounded by **8 model calls**, **12 tool calls**, **30,000 tokens**, **90 seconds**, **4 rows per page**, **256 pages**, and **1 MB of table data**. See the configuration and [evaluation design](docs/evaluation.md) for exact gate semantics.
 

@@ -34,6 +34,7 @@ harness = "harness"
 
 [tool.setuptools.data-files]
 "share/self-heal/ui" = ["ui/index.html", "ui/app.js", "ui/styles.css", "ui/README.md"]
+"share/self-heal/ui/fonts" = ["ui/fonts/Geist.woff2", "ui/fonts/GeistMono.woff2", "ui/fonts/LICENSE.txt"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

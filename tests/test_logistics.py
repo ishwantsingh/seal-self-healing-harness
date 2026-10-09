@@ -216,3 +216,27 @@ def test_logistics_evolution_uses_the_bundle_controller_and_records_paired_trial
     assert history.candidates.count_documents({"incident_run_id": "logistics-gap"}) == 1
     assert history.selection_plans.count_documents({}) == 1
     assert history.evaluations.count_documents({"plan_id": {"$exists": True}}) > 0
+
+
+def test_logistics_proposer_receives_the_observed_tool_boundary_and_page_schema():
+    from self_heal.evolution import propose_logistics_change
+
+    class CaptureModel:
+        def complete(self, messages, tools):
+            self.messages = messages
+            return ModelReply(json.dumps({
+                "hypothesis": "Add bounded aggregation",
+                "changed_mechanism": "One observed execute call pages the scoped session",
+                "diff": "--- a/harness/logistics.py\n+++ b/harness/logistics.py\n@@ -1 +1 @@\n-# missing\n+# implemented\n",
+            }))
+
+    model = CaptureModel()
+    propose_logistics_change(model, incident={"outcome": "unsupported"}, trace=[],
+                            contract={"input_kind": "logistics_bundle"},
+                            source={"logistics.py": "# missing"}, reproduction={}, previous_attempts=[])
+    interface = model.messages[0]["content"]
+    assert '"sender_customer_id"' in interface
+    assert '"next_cursor"' in interface
+    assert "only `definitions()`, `execute(name, arguments)`, and `table`" in interface
+    assert "custom tool helper methods\nare not forwarded" in interface
+    assert "rather\nthan one tool call per page" in interface

@@ -160,10 +160,9 @@ def _history_summary(record: dict[str, Any], *, detail: bool = False) -> dict[st
         "history_status": record.get("status"),
         "workflow_revision_id": record.get("workflow_revision_id"),
         "evolution_job_id": record.get("evolution_job_id"),
-        "version": (TOOL_VERSION if (record.get("dataset") or {}).get("input_kind") == "logistics_bundle"
-                    and record.get("outcome") == "answered" and (record.get("interpreted_task") or {}).get("operation") == "count_customers_with_shipment_count_gt"
-                    else (record.get("execution") or {}).get("source", {}).get("commit") or
-                         (record.get("execution") or {}).get("config", {}).get("task_contract_version")),
+        "version": ((record.get("execution") or {}).get("source", {}).get("commit") or
+                    (TOOL_VERSION if (record.get("dataset") or {}).get("input_kind") == "logistics_bundle"
+                     else (record.get("execution") or {}).get("config", {}).get("task_contract_version"))),
         **({"evidence": record.get("evidence")} if detail else {}),
     }
 
@@ -541,9 +540,16 @@ class WebApplication:
     def _job_evaluations(self, job: dict[str, Any], *, limit: int) -> dict[str, Any]:
         candidate = self.history.candidates.find_one({"_id": job.get("candidate_id")}) if job.get("candidate_id") else None
         plan_id = job.get("plan_id") or ((candidate or {}).get("selection") or {}).get("plan_id")
+        # A plan is persisted before trials start; the terminal selection result
+        # is stored only after all trials finish. Resolve it by candidate while
+        # evaluation is running so polling can expose real partial progress.
+        plan = (self.history.selection_plans.find_one({"_id": plan_id}) if plan_id
+                else self.history.selection_plans.find_one({"candidate_id": job.get("candidate_id")})
+                if job.get("candidate_id") else None)
+        if not plan_id and plan:
+            plan_id = plan["_id"]
         if not plan_id:
             return {"plan_id": None, "watermark": 0, "scheduled": {}, "groups": [], "trials": []}
-        plan = self.history.selection_plans.find_one({"_id": plan_id})
         if not plan:
             return {"plan_id": plan_id, "watermark": 0, "scheduled": {}, "groups": [], "trials": []}
         role_by_case = {case["case_id"]: case.get("role", "selection") for case in plan.get("cases", [])}
@@ -767,13 +773,13 @@ class _WebRequestHandler(BaseHTTPRequestHandler):
         if ASSET_ROOT not in candidate.parents and candidate != ASSET_ROOT:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
-        if not candidate.is_file() or candidate.suffix not in {".css", ".html", ".js", ".svg"}:
+        if not candidate.is_file() or candidate.suffix not in {".css", ".html", ".js", ".svg", ".woff2"}:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
         payload = candidate.read_bytes()
         content_type = mimetypes.guess_type(candidate.name)[0] or "application/octet-stream"
         self.send_response(HTTPStatus.OK)
-        self.send_header("Content-Type", f"{content_type}; charset=utf-8")
+        self.send_header("Content-Type", content_type if candidate.suffix == ".woff2" else f"{content_type}; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
